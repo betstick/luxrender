@@ -64,29 +64,6 @@ ELSE (SLG_INCLUDE_DIRS AND SLG_LIBRARY)
 	MESSAGE(FATAL_ERROR "SLG Library not found.")
 ENDIF (SLG_INCLUDE_DIRS AND SLG_LIBRARY)
 
-#############################################################################
-#############################################################################
-###########################      Find OpenCL       ##########################
-#############################################################################
-#############################################################################
-
-IF(LUXRAYS_DISABLE_OPENCL)
-	SET(OPENCL_LIBRARIES "")
-ELSE(LUXRAYS_DISABLE_OPENCL)
-	IF(NOT OPENCL_ROOT)
-		SET(OPENCL_ROOT /usr/src/opencl-sdk)
-	ENDIF(NOT OPENCL_ROOT)
-	FIND_PACKAGE(OpenCL)
-
-	IF (OPENCL_FOUND)
-		MESSAGE(STATUS "OpenCL include directory: " ${OPENCL_INCLUDE_DIR})
-		MESSAGE(STATUS "OpenCL library: " ${OPENCL_LIBRARIES})
-		INCLUDE_DIRECTORIES(SYSTEM ${OPENCL_INCLUDE_DIR})
-	ELSE (OPENCL_FOUND)
-		MESSAGE(FATAL_ERROR "OpenCL not found, try to compile with LUXRAYS_DISABLE_OPENCL=ON")
-	ENDIF (OPENCL_FOUND)
-ENDIF(LUXRAYS_DISABLE_OPENCL)
-
 
 #############################################################################
 #############################################################################
@@ -102,22 +79,6 @@ IF (OPENGL_FOUND)
 ELSE (OPENGL_FOUND)
 	MESSAGE(FATAL_ERROR "OpenGL not found.")
 ENDIF (OPENGL_FOUND)
-
-
-#############################################################################
-#############################################################################
-########################      Find Intel Embree       #######################
-#############################################################################
-#############################################################################
-
-SET(EMBREE_ROOT "${EMBREE_SEARCH_PATH}")
-FIND_PACKAGE(Embree)
-
-IF (EMBREE_FOUND)
-	INCLUDE_DIRECTORIES(SYSTEM ${EMBREE_INCLUDE_PATH})
-ELSE (EMBREE_FOUND)
-	MESSAGE(FATAL_ERROR "Intel Embree not found.")
-endif (EMBREE_FOUND)
 
 
 #############################################################################
