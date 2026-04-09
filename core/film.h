@@ -32,7 +32,7 @@
 
 #include "luxrays/utils/mcdistribution.h"
 #include "luxrays/utils/memory.h"
-#include "slg/utils/convtest/convtest.h"
+#include "luxrays/utils/convtest/convtest.h"
 
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/xtime.hpp>

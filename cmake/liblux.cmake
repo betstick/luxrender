@@ -287,7 +287,7 @@ SET(lux_samplers_src
 	samplers/lowdiscrepancy.cpp
 	samplers/metrosampler.cpp
 	samplers/random.cpp
-	samplers/sobol.cpp
+#	samplers/sobol.cpp
 	)
 SOURCE_GROUP("Source Files\\Samplers" FILES ${lux_samplers_src})
 

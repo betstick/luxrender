@@ -41,30 +41,6 @@ ELSE (LUXRAYS_INCLUDE_DIRS AND LUXRAYS_LIBRARY)
 	MESSAGE(FATAL_ERROR "LuxRays not found.")
 ENDIF (LUXRAYS_INCLUDE_DIRS AND LUXRAYS_LIBRARY)
 
-
-#############################################################################
-#############################################################################
-########################          Find SLG           ########################
-#############################################################################
-#############################################################################
-
-IF(APPLE)
-	FIND_PATH(SLG_INCLUDE_DIRS NAMES slg/slg.h PATHS ${OSX_DEPENDENCY_ROOT}/include/LuxRays)
-	FIND_LIBRARY(SLG_LIBRARY libsmallluxgpu.a ${OSX_DEPENDENCY_ROOT}/lib/LuxRays)
-ELSE(APPLE)
-	FIND_PATH(SLG_INCLUDE_DIRS NAMES slg/slg.h PATHS ../luxrays/include)
-	FIND_LIBRARY(SLG_LIBRARY smallluxgpu PATHS ../luxrays/lib ${LuxRays_HOME}/lib PATH_SUFFIXES "" release relwithdebinfo minsizerel dist )
-ENDIF(APPLE)
-
-IF (SLG_INCLUDE_DIRS AND SLG_LIBRARY)
-	MESSAGE(STATUS "SLG include directory: " ${SLG_INCLUDE_DIRS})
-	MESSAGE(STATUS "SLG library directory: " ${SLG_LIBRARY})
-	INCLUDE_DIRECTORIES(SYSTEM ${SLG_INCLUDE_DIRS})
-ELSE (SLG_INCLUDE_DIRS AND SLG_LIBRARY)
-	MESSAGE(FATAL_ERROR "SLG Library not found.")
-ENDIF (SLG_INCLUDE_DIRS AND SLG_LIBRARY)
-
-
 #############################################################################
 #############################################################################
 ###########################      Find OpenGL       ##########################

@@ -36,7 +36,7 @@
 
 // blender_texlib.cpp*
 #include "lux.h"
-#include "slg/textures/blender_noiselib.h"
+#include "luxrays/textures/blender_noiselib.h"
 
 namespace blender
 {
