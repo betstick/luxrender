@@ -18,12 +18,12 @@
 
 ################################################################################
 #
-# Definition of the function for preprocessing OpenCL kernels
+# Definition of the function for preprocessing kernels
 #
 ################################################################################
 
-FUNCTION(PreprocessOCLKernel NAMESPACE KERNEL SRC DST)
-	MESSAGE(STATUS "Preprocessing OpenCL kernel: " ${SRC} " => " ${DST} )
+FUNCTION(PreprocessKernel NAMESPACE KERNEL SRC DST)
+	MESSAGE(STATUS "Preprocessing kernel: " ${SRC} " => " ${DST} )
 
 	IF(WIN32)
 		add_custom_command(
@@ -65,9 +65,9 @@ FUNCTION(PreprocessOCLKernel NAMESPACE KERNEL SRC DST)
 			MAIN_DEPENDENCY ${SRC}
 		)
 	ENDIF(WIN32)
-ENDFUNCTION(PreprocessOCLKernel)
+ENDFUNCTION(PreprocessKernel)
 
-FUNCTION(PreprocessOCLKernels)
+FUNCTION(PreprocessKernels)
 	set(dest_dir ${ARGV0})
 	set(namespace ${ARGV1})
 	list(REMOVE_AT ARGV 0 1)
@@ -78,8 +78,8 @@ FUNCTION(PreprocessOCLKernels)
 		math(EXPR kernel_filename_length "${kernel_filename_length} - 3")
 		string(SUBSTRING ${kernel_filename} 0 ${kernel_filename_length} kernel_name)
 
-		PreprocessOCLKernel(${namespace} ${kernel_name}
+		PreprocessKernel(${namespace} ${kernel_name}
 			${kernel}
 			${dest_dir}/${kernel_name}_kernel.cpp)
 	endforeach(kernel)
-ENDFUNCTION(PreprocessOCLKernels)
+ENDFUNCTION(PreprocessKernels)

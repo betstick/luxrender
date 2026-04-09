@@ -126,7 +126,7 @@ set(LUXRAYS_KERNELS
 	${LuxRays_SOURCE_DIR}/include/luxrays/utils/mc_funcs.cl
 )
 
-PreprocessOCLKernels(${LuxRays_SOURCE_DIR}/src/luxrays/kernels luxrays ${LUXRAYS_KERNELS})
+PreprocessKernels(${LuxRays_SOURCE_DIR}/src/luxrays/kernels luxrays ${LUXRAYS_KERNELS})
 
 ###########################################################################
 #

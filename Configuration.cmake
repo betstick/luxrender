@@ -58,7 +58,6 @@ IF (NOT LUXRAYS_NO_DEFAULT_CONFIG)
 
 #        SET(BISON_EXECUTABLE      "$ENV{LUX_WINDOWS_BUILD_ROOT}/support/bin/win_bison.exe")
 #        SET(FLEX_EXECUTABLE       "$ENV{LUX_WINDOWS_BUILD_ROOT}/support/bin/win_flex.exe")
-#        SET(OPENCL_SEARCH_PATH    "$ENV{LUX_WINDOWS_BUILD_ROOT}/include")
 #        SET(BOOST_SEARCH_PATH     "$ENV{LUX_${WINDOWS_ARCH}_BOOST_ROOT}")
 #        SET(Boost_USE_STATIC_LIBS ON)
 #        SET(BOOST_INCLUDEDIR      "$ENV{LUX_${WINDOWS_ARCH}_BOOST_ROOT}/boost")
@@ -69,7 +68,6 @@ IF (NOT LUXRAYS_NO_DEFAULT_CONFIG)
         SET(BISON_EXECUTABLE        "$ENV{LUX_WINDOWS_BUILD_ROOT}/support/bin/win_bison.exe")
         SET(FLEX_EXECUTABLE         "$ENV{LUX_WINDOWS_BUILD_ROOT}/support/bin/win_flex.exe")
         SET(OPENEXR_ROOT            "$ENV{INCLUDE_DIR}/OpenEXR")
-        #SET(OPENCL_SEARCH_PATH     "$ENV{LUX_WINDOWS_BUILD_ROOT}/include")
         SET(BOOST_SEARCH_PATH       "$ENV{INCLUDE_DIR}/Boost")
         SET(Boost_USE_STATIC_LIBS   ON)
         SET(BOOST_LIBRARYDIR        "$ENV{LIB_DIR}")
@@ -84,7 +82,6 @@ IF (NOT LUXRAYS_NO_DEFAULT_CONFIG)
 
       SET(FREEIMAGE_SEARCH_PATH     "${LuxRays_SOURCE_DIR}/../FreeImage")
       SET(BOOST_SEARCH_PATH         "${LuxRays_SOURCE_DIR}/../boost")
-      SET(OPENCL_SEARCH_PATH        "${LuxRays_SOURCE_DIR}/../opencl")
 
     ENDIF(MSVC)
 

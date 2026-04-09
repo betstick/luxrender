@@ -77,25 +77,13 @@ if (NOT Boost_FOUND)
 	MESSAGE(FATAL_ERROR "--> Could not locate required Boost files - Please check ${BOOST_SEARCH_PATH}")
 endif()
 
-if (NOT OPENCL_FOUND AND NOT LUXRAYS_DISABLE_OPENCL)
-	MESSAGE(ERROR "--> Could not locate required OpenCL files, disabling OpenCL support - Please check ${OPENCL_SEARCH_PATH}")
-	SET(LUXRAYS_DISABLE_OPENCL 1)
-endif()
-
-if (NOT OPENGL_FOUND AND NOT LUXRAYS_DISABLE_OPENCL)
-	MESSAGE(ERROR "--> Could not locate required OpenGL files, disabling OpenCL support, disabling samples build")
-	SET(LUXRAYS_DISABLE_OPENCL 1)
-endif()
-
 ################################################################################
 #
 # Build options
 #
 ################################################################################
 
-if (LUXRAYS_DISABLE_OPENCL)
-	ADD_DEFINITIONS("-DLUXRAYS_DISABLE_OPENCL")
-endif()
+ADD_DEFINITIONS("-DLUXRAYS_DISABLE_OPENCL")
 
 ################################################################################
 #
