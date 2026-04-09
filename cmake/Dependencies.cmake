@@ -170,7 +170,6 @@ ENDIF(Boost_FOUND)
 #############################################################################
 #############################################################################
 
-IF(LUX_USE_FREEIMAGE)
 	FIND_PACKAGE(FreeImage REQUIRED)
 
 	IF(FREEIMAGE_FOUND)
@@ -180,31 +179,6 @@ IF(LUX_USE_FREEIMAGE)
 	ELSE(FREEIMAGE_FOUND)
 		MESSAGE(FATAL_ERROR "Could not find FreeImage")
 	ENDIF(FREEIMAGE_FOUND)
-ENDIF(LUX_USE_FREEIMAGE)
-
-#############################################################################
-#############################################################################
-##########################   OPENIMAGEIO LIBRARIES    #######################
-#############################################################################
-#############################################################################
-
-find_package(OpenImageIO REQUIRED)
-include_directories(SYSTEM ${OPENIMAGEIO_INCLUDE_DIR})
-
-if(NOT APPLE)
-    find_package(TIFF REQUIRED)
-    include_directories(SYSTEM ${TIFF_INCLUDE_DIR})
-    find_package(JPEG REQUIRED)
-    include_directories(SYSTEM ${JPEG_INCLUDE_DIR})
-endif()
-
-#IF(OPENIMAGEIO_FOUND)
-#	MESSAGE(STATUS "OpenImageIO include directory: " ${OPENIMAGEIO_INCLUDE_DIR})
-#	MESSAGE(STATUS "OpenImageIO library: " ${OPENIMAGEIO_LIBRARIES})
-#	INCLUDE_DIRECTORIES(SYSTEM ${OPENIMAGEIO_INCLUDE_DIR})
-#ELSE(OPENIMAGEIO_FOUND)
-#	MESSAGE(FATAL_ERROR "Could not find OpenImageIO")
-#ENDIF(OPENIMAGEIO_FOUND)
 
 
 #############################################################################

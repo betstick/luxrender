@@ -50,7 +50,6 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
 )
 option(LUXRAYS_DISABLE_OPENCL "Build without OpenCL support" OFF)
 option(LUX_DOCUMENTATION "Generate project documentation" ON)
-option(LUX_USE_FREEIMAGE "Compile with FreeImage, otherwise OIIO is used exclusively" OFF)
 
 # Dade - uncomment to obtain verbose building output
 #SET(CMAKE_VERBOSE_MAKEFILE true)
@@ -273,7 +272,6 @@ ELSE(LUX_CUSTOM_CONFIG)
 
         SET(BISON_EXECUTABLE          "$ENV{LUX_WINDOWS_BUILD_ROOT}/support/bin/win_bison.exe")
         SET(FLEX_EXECUTABLE           "$ENV{LUX_WINDOWS_BUILD_ROOT}/support/bin/win_flex.exe")
-        SET(OPENIMAGEIO_INCLUDE_DIR   "$ENV{INCLUDE_DIR}/OpenImageIO")
         SET(OPENEXR_ROOT              "$ENV{INCLUDE_DIR}/OpenEXR")
         #SET(OPENCL_SEARCH_PATH       "$ENV{LUX_WINDOWS_BUILD_ROOT}/include")
         SET(BOOST_SEARCH_PATH         "$ENV{INCLUDE_DIR}/Boost")
@@ -286,9 +284,7 @@ ELSE(LUX_CUSTOM_CONFIG)
         SET(QT_QMAKE_EXECUTABLE       "$ENV{LIB_DIR}/qmake.exe")
         SET(QT_BINARY_DIR             "$ENV{LIB_DIR}")
 
-	IF(LUX_USE_FREEIMAGE)
 		ADD_DEFINITIONS(-DFREEIMAGE_LIB)
-	ENDIF()
         ADD_DEFINITIONS(-DFREEGLUT_STATIC)
         ADD_DEFINITIONS(-DGLEW_STATIC)
       ENDIF()
@@ -425,10 +421,6 @@ ELSEIF(MSVC)
 	SET_SOURCE_FILES_PROPERTIES(accelerators/qbvhaccel.cpp COMPILE_FLAGS "-O1")
 ENDIF(APPLE)
 
-IF(LUX_USE_FREEIMAGE)
-	ADD_DEFINITIONS(-DLUX_FREEIMAGE)
-ENDIF()
-
 #############################################################################
 # Compiler flags for specific setup
 #############################################################################
@@ -532,7 +524,7 @@ ELSE(APPLE)
 	SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 	SET(CMAKE_INSTALL_RPATH "$ORIGIN")
 ENDIF(APPLE)
-SET(LUX_LIBRARY_DEPENDS ${LUXRAYS_LIBRARY} ${OPENGL_LIBRARY} ${FREEIMAGE_LIBRARIES} ${OPENIMAGEIO_LIBRARIES} ${TIFF_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES} ${Boost_LIBRARIES} ${FFTW_LIBRARIES} ${SYS_LIBRARIES})
+SET(LUX_LIBRARY_DEPENDS ${LUXRAYS_LIBRARY} ${OPENGL_LIBRARY} ${FREEIMAGE_LIBRARIES} ${TIFF_LIBRARIES} ${PNG_LIBRARIES} ${JPEG_LIBRARIES} ${Boost_LIBRARIES} ${FFTW_LIBRARIES} ${SYS_LIBRARIES})
 
 #############################################################################
 #############################################################################
@@ -577,9 +569,9 @@ ELSEIF(WIN32)
 
 ELSE(APPLE)
 	INSTALL(TARGETS luxconsole luxmerger RUNTIME DESTINATION bin)
-	IF(Qt5_FOUND)
+	IF(Qt6_FOUND)
 		INSTALL(TARGETS luxrender RUNTIME DESTINATION bin)
-	ENDIF(Qt5_FOUND)
+	ENDIF(Qt6_FOUND)
 
 	#Install API/Library
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/core/api.h DESTINATION include/luxrender/)

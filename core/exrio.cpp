@@ -29,17 +29,7 @@
 #include "texturecolor.h"
 #include <algorithm>
 
-#ifdef LUX_FREEIMAGE
 #include <FreeImage.h>
-#else
-#include <numeric>
-#include <memory>
-
-#include <OpenImageIO/imagebufalgo.h>
-#include <OpenImageIO/imagebuf.h>
-#include <OpenImageIO/dassert.h>
-
-#endif
 
 #include <boost/filesystem.hpp>
 
@@ -86,8 +76,7 @@ using namespace cimg_library;
 #include <OpenEXR/ImfImageIO.h>
 #include <half.h>
 
-#include <Imath/ImathVec.h>
-//this has an error for some reason, i'm not sure why. it compiles though
+#include <OpenEXR/ImathVec.h>
 #include <OpenEXR/ImfRgbaFile.h>
 #include <OpenEXR/ImfRgba.h>
 
@@ -99,16 +88,11 @@ using namespace cimg_library;
 #endif*/
 
 using namespace lux;
-#ifndef LUX_FREEIMAGE
-using namespace OIIO_NAMESPACE;
-#endif
 using namespace Imf;
 using namespace Imath;
 
-
 namespace lux {
 
-#ifdef LUX_FREEIMAGE
 	class StandardImageReader : public ImageReader {
 	public:
 		StandardImageReader() { };
@@ -402,103 +386,6 @@ namespace lux {
 			return NULL;
 		}
 	}
-#else	//OpenImageIO
-	template <typename T, int C> void* setImageData(const ImageSpec &spec) {
-
-		const u_int width = spec.width;
-		const u_int height = spec.height;
-
-		void* ret = new TextureColor<T, C>[width * height];
-
-		return ret;
-	}
-	template <typename T> void* setImageData(const ImageSpec &spec) {
-		const u_int channelCount = spec.nchannels;
-		switch (channelCount) {
-		case 1:
-			return setImageData<T, 1>(spec);
-		case 3:
-			return setImageData<T, 3>(spec);
-		case 4:
-			return setImageData<T, 4>(spec);
-		default:
-			return NULL;
-		}
-	}
-
-	ImageData *ReadImage(const string &name)
-	{
-		try {
-			boost::filesystem::path imagePath(AdjustFilename(name));
-			// boost::filesystem::exists() can throw an exception under Windows
-			// if the drive in imagePath doesn't exist
-			if (!boost::filesystem::exists(imagePath)) {
-				LOG(LUX_ERROR, LUX_NOFILE) <<
-					"Unable to open image file '" <<
-					imagePath.string() << "'";
-				return NULL;
-			}
-
-			ImageSpec config;
-			config.attribute("oiio:UnassociatedAlpha", 1);
-			std::unique_ptr<ImageInput> in(ImageInput::open(name, &config));
-			if (in.get()) {
-				const ImageSpec &spec = in->spec();
-
-				const u_int width = spec.width;
-				const u_int height = spec.height;
-				const u_int channelCount = spec.nchannels;
-
-				if ((channelCount != 1) && (channelCount != 3) && (channelCount != 4)) {
-					LOG(LUX_ERROR, LUX_BADFILE) << "Unsupported number of channels in an image file:" << channelCount;
-					return NULL;
-				}
-
-				void* data;
-				TypeDesc format;
-				ImageData::PixelDataType type;
-				u_int bytesPerChannel = spec.channel_bytes();
-				switch (bytesPerChannel) {
-				case 1:
-					type = ImageData::UNSIGNED_CHAR_TYPE;
-					data = setImageData<unsigned char>(spec);
-					format = TypeDesc::UINT8;
-					break;
-				case 2:
-					type = ImageData::UNSIGNED_SHORT_TYPE;
-					data = setImageData<unsigned short>(spec);
-					format = TypeDesc::UINT16;
-					break;
-				case 4:
-					type = ImageData::FLOAT_TYPE;
-					data = setImageData<float>(spec);
-					format = TypeDesc::FLOAT;
-					break;
-				default:
-					LOG(LUX_ERROR, LUX_SYSTEM) <<
-						"Unsupported pixel type (size=" << bytesPerChannel << ")";
-					return NULL;
-				}
-
-				in->read_image(format, data);
-
-				in->close();
-				in.reset();
-
-				return new ImageData(width, height, type, channelCount, data);
-			}
-			LOG(LUX_ERROR, LUX_BADFILE) <<
-				"Cannot recognise file format for image '" <<
-				name << "'";
-			return NULL;
-		}
-		catch (const std::exception &e) {
-			LOG(LUX_ERROR, LUX_BUG) << "Unable to read image file '" <<
-				name << "': " << e.what();
-			return NULL;
-		}
-	}
-#endif		//#ifdef LUX_FREEIMAGE
 
 	/*
 	 * To convert a standard EXR to Blender MultiLayer format, change the channel names:
