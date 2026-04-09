@@ -30,11 +30,6 @@
 
 namespace luxrays {
 
-// OpenCL data types
-namespace ocl {
-#include "luxrays/core/geometry/vector_types.cl"
-}
-
 class Point;
 class Normal;
 

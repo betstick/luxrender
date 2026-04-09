@@ -23,11 +23,6 @@
 
 namespace luxrays {
 
-// OpenCL data types
-namespace ocl {
-#include "luxrays/core/geometry/matrix4x4_types.cl"
-}
-
 class Matrix4x4 {
 public:
 	// Matrix4x4 Public Methods

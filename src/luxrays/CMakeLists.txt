@@ -170,10 +170,14 @@ set(LUXRAYS_SRCS
 	${LuxRays_SOURCE_DIR}/src/luxrays/idevices/openclidevice.cpp
 	${LuxRays_SOURCE_DIR}/src/luxrays/idevices/nativeidevice.cpp
 	${LuxRays_SOURCE_DIR}/src/luxrays/idevices/virtualidevice.cpp
+	${LuxRays_SOURCE_DIR}/src/luxrays/textures/blender_noiselib.cpp
 	${LuxRays_SOURCE_DIR}/src/luxrays/utils/mc.cpp
 	${LuxRays_SOURCE_DIR}/src/luxrays/utils/ocl.cpp
 	${LuxRays_SOURCE_DIR}/src/luxrays/utils/ply/rply.cpp
 	${LuxRays_SOURCE_DIR}/src/luxrays/utils/properties.cpp
+	${LuxRays_SOURCE_DIR}/src/luxrays/utils/convtest/convtest.cpp
+	${LuxRays_SOURCE_DIR}/src/luxrays/utils/convtest/pdiff/lpyramid.cpp
+	${LuxRays_SOURCE_DIR}/src/luxrays/utils/convtest/pdiff/metric.cpp
 )
 SOURCE_GROUP("Source Files\\LuxRays Library" FILES ${LUXRAYS_SRCS})
 
