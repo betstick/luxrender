@@ -42,7 +42,8 @@
 #include <QPoint>
 #include <QProgressBar>
 #include <QProgressDialog>
-#include <QRegExp>
+// #include <QRegExp>
+#include <QRegularExpression>
 #include <QSlider>
 #include <QSpacerItem>
 #include <QSpinBox>
@@ -317,7 +318,8 @@ private:
 	bool m_copyLog2Console;
 	bool m_fixedSeed;
 
-	QRegExp reUpdateInterval;
+//	QRegExp reUpdateInterval;
+	QRegularExpression reUpdateInterval;
 
 	LuxGuiRenderState m_guiRenderState;
 	

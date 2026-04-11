@@ -26,6 +26,7 @@
 #include <QAbstractButton>
 #include <QChar>
 #include <QColor>
+#include <QLocale>
 #include <QDateTime>
 #include <QFileInfo>
 #include <QFont>
@@ -69,7 +70,8 @@ QString pathElidedText(const QFontMetrics &fm, const QString &text, int width, i
 	const QString filename = "/" + QFileInfo(text).fileName();
 	const QString path = QFileInfo(text).absolutePath();
 
-	int fwidth = fm.width(filename);
+//	int fwidth = fm.width(filename);
+	int fwidth = fm.horizontalAdvance(filename);
 
 	if (fwidth > width)
 		// we're SOL, just do the default
@@ -100,7 +102,8 @@ void overlayStatistics(QImage *image)
 	QString stats;
 
 	stats = "LuxRender " + QString::fromLatin1(luxVersion()) + " ";
-	stats += "|Saved: " + QDateTime::currentDateTime().toString(Qt::DefaultLocaleShortDate) + " ";
+//	stats += "|Saved: " + QDateTime::currentDateTime().toString(Qt::DefaultLocaleShortDate) + " ";
+	stats += "|Saved: " + QLocale().toString(QDateTime::currentDateTime(), QLocale::ShortFormat) + " ";
 
 	QString rendererStats = getStringAttribute("renderer_statistics_formatted", "_recommended_string");
 	// fallback statistics

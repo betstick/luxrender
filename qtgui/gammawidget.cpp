@@ -39,7 +39,8 @@ GammaWidget::GammaWidget(QWidget *parent) : QWidget(parent), ui(new Ui::GammaWid
 	connect(ui->slider_gamma, SIGNAL(valueChanged(int)), this, SLOT(gammaChanged(int)));
 	connect(ui->spinBox_gamma, SIGNAL(valueChanged(double)), this, SLOT(gammaChanged(double)));
 	connect(ui->checkBox_CRF, SIGNAL(stateChanged(int)), this, SLOT(CRFChanged(int)));
-	connect(ui->combo_CRF_List, SIGNAL(activated(QString)), this, SLOT(SetCRFPreset(QString)));
+	// connect(ui->combo_CRF_List, SIGNAL(Activated(QString)), this, SLOT(SetCRFPreset(QString)));
+	connect(ui->combo_CRF_List, SIGNAL(textActivated(QString)), this, SLOT(SetCRFPreset(QString)));
 
 	ui->combo_CRF_List->addItem(tr("External..."));
 
@@ -253,7 +254,8 @@ void GammaWidget::SetCRFPreset( QString sOption )
 
 		if( !m_CRF_file.isEmpty() )
 		{
-			QFileInfo fTemp = m_CRF_file;
+//			QFileInfo fTemp = m_CRF_file;
+			QFileInfo fTemp(m_CRF_file);
 
 			ui->combo_CRF_List->insertItem( 1, fTemp.fileName(), QVariant( m_CRF_file ) );
 			ui->combo_CRF_List->setCurrentIndex( 1 );

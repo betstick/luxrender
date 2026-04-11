@@ -54,7 +54,12 @@
 #include <QSettings>
 #include <QSize>
 #include <QSizePolicy>
-#include <QStringListIterator>
+
+//#include <QStringListIterator>
+#include <QList>
+#include <QRegularExpression>
+#include <QRandomGenerator>
+
 #include <QTableWidgetItem>
 #include <QTextCharFormat>
 #include <QTextCursor>
@@ -443,22 +448,28 @@ MainWindow::MainWindow(QWidget *parent, bool copylog2console)
 
 	// Update timers
 	m_renderTimer = new QTimer();
-	connect(m_renderTimer, SIGNAL(timeout()), SLOT(renderTimeout()));
+	// connect(m_renderTimer, SIGNAL(timeout()), SLOT(renderTimeout()));
+	connect(m_renderTimer, SIGNAL(timeout()), this, SLOT(renderTimeout()));
 
 	m_statsTimer = new QTimer();
-	connect(m_statsTimer, SIGNAL(timeout()), SLOT(statsTimeout()));
+	// connect(m_statsTimer, SIGNAL(timeout()), SLOT(statsTimeout()));
+	connect(m_statsTimer, SIGNAL(timeout()), this, SLOT(statsTimeout()));
 
 	m_loadTimer = new QTimer();
-	connect(m_loadTimer, SIGNAL(timeout()), SLOT(loadTimeout()));
+	// connect(m_loadTimer, SIGNAL(timeout()), SLOT(loadTimeout()));
+	connect(m_loadTimer, SIGNAL(timeout()), this, SLOT(loadTimeout()));
 
 	m_saveTimer = new QTimer();
-	connect(m_saveTimer, SIGNAL(timeout()), SLOT(saveTimeout()));
+	// connect(m_saveTimer, SIGNAL(timeout()), SLOT(saveTimeout()));
+	connect(m_saveTimer, SIGNAL(timeout()), this, SLOT(saveTimeout()));
 
 	m_netTimer = new QTimer();
-	connect(m_netTimer, SIGNAL(timeout()), SLOT(netTimeout()));
+	// connect(m_netTimer, SIGNAL(timeout()), SLOT(netTimeout()));
+	connect(m_netTimer, SIGNAL(timeout()), this, SLOT(netTimeout()));
 
 	m_blinkTimer = new QTimer();
-	connect(m_blinkTimer, SIGNAL(timeout()), SLOT(blinkTrigger()));
+	// connect(m_blinkTimer, SIGNAL(timeout()), SLOT(blinkTrigger()));
+	connect(m_blinkTimer, SIGNAL(timeout()), this, SLOT(blinkTrigger()));
 
 	// Init render area
 	renderView = new RenderView(ui->frame_render);
@@ -583,7 +594,8 @@ void MainWindow::ReadSettings()
 	ui->splitter->restoreState(settings.value("splittersizes").toByteArray());
 	{
 		QStringList recentFilesList = settings.value("recentFiles").toStringList();
-		QStringListIterator i(recentFilesList);
+//		QStringListIterator i(recentFilesList);
+		QListIterator<QString> i(recentFilesList);
 		while (i.hasNext())
 			m_recentFiles.append(QFileInfo(i.next()));
 	}
@@ -790,7 +802,8 @@ void MainWindow::openOneQueueFile(const QString& file)
 		updateQueueList();
 
 		if (!renderQueue.isRendering())
-			renderScene(queueIndex.child(0, 0));
+//			renderScene(queueIndex.child(0, 0));
+			renderScene(queueIndex.model()->index(0, 0, queueIndex));
 	}
 }
 
@@ -1557,7 +1570,7 @@ void MainWindow::userSamplingReset() {
 void MainWindow::EngineThread::run()
 {
 	// NOTE - lordcrc - initialize rand()
-	qsrand(time(NULL));
+//	qsrand(time(NULL));
 
 	// if stdin is input, don't use full path
 	if (filename == QString::fromLatin1("-"))
@@ -1718,74 +1731,144 @@ void  MainWindow::loadFile(const QString &fileName)
 #endif
 
 // Helper class for MainWindow::updateStatistics()
+// class AttributeFormatter {
+// public:
+// 	static const int maxStatLength = 10;
+
+// 	AttributeFormatter(QBoxLayout* l, int& label_count) : layout(l), count(label_count) { }
+
+// 	void operator()(QString s) {
+// 		QRegExp m("([^%]*)%([^%]*)%([^%]*)");
+// 		for (int pos = 0; (pos = m.indexIn(s, pos)) >= 0; pos += m.matchedLength()) {
+// 			// leading text in first capture subgroup
+// 			if (m.pos(1) >= 0 && m.cap(1).length() > 0) {
+// 				QLabel* label = getNextLabel();
+// 				label->setText(m.cap(1));
+// 				label->setToolTip("");
+// 			}
+
+// 			// attribute in second capture subgroup
+// 			if (m.pos(2) >= 0) {
+// 				QLabel* label = getNextLabel();
+// 				if (m.cap(2).length() > 0) {
+// 					QString attr(m.cap(2));
+
+// 					QString statValue = getStringAttribute("renderer_statistics_formatted", qPrintable(attr));
+// 					QString statDesc;
+
+// 					if (statValue.length() <= maxStatLength)
+// 						statDesc = getAttributeDescription("renderer_statistics_formatted", qPrintable(attr));
+// 					else {
+// 						statValue = getStringAttribute("renderer_statistics_formatted_short", qPrintable(attr));
+// 						statDesc = getAttributeDescription("renderer_statistics_formatted_short", qPrintable(attr));
+// 					}
+
+// 					label->setText(statValue);
+// 					label->setToolTip(statDesc);
+// 				} else {
+// 					label->setText("%");
+// 					label->setToolTip("");
+// 				}
+// 			}
+
+// 			// trailing text in third capture subgroup
+// 			if (m.pos(3) >= 0 && m.cap(3).length() > 0) {
+// 				QLabel* label = getNextLabel();
+// 				label->setText(m.cap(3));
+// 				label->setToolTip("");
+// 			}
+// 		}
+// 	}
+
+// private:
+// 	QLabel* getNextLabel() {
+// 		const int idx = count++;
+// 		QLayoutItem* item = layout->itemAt(idx);
+
+// 		// if item is a stretcher then widget() returns null
+// 		QLabel* label = item ? qobject_cast<QLabel*>(item->widget()) : NULL;
+// 		if (!label) {
+// 			// no existing label, create new
+// 			label = new QLabel("");
+// 			layout->insertWidget(idx, label);
+// 			label->setVisible(true);
+// 		}
+
+// 		return label;
+// 	}
+
+// 	QBoxLayout* layout;
+// 	int& count;
+// };
+
+// Helper class for MainWindow::updateStatistics()
 class AttributeFormatter {
 public:
-	static const int maxStatLength = 10;
+    static const int maxStatLength = 10;
 
-	AttributeFormatter(QBoxLayout* l, int& label_count) : layout(l), count(label_count) { }
+    AttributeFormatter(QBoxLayout* l, int& label_count) : layout(l), count(label_count) { }
 
-	void operator()(QString s) {
-		QRegExp m("([^%]*)%([^%]*)%([^%]*)");
-		for (int pos = 0; (pos = m.indexIn(s, pos)) >= 0; pos += m.matchedLength()) {
-			// leading text in first capture subgroup
-			if (m.pos(1) >= 0 && m.cap(1).length() > 0) {
-				QLabel* label = getNextLabel();
-				label->setText(m.cap(1));
-				label->setToolTip("");
-			}
+    void operator()(QString s) {
+        QRegularExpression m("([^%]*)%([^%]*)%([^%]*)");
+        QRegularExpressionMatchIterator it = m.globalMatch(s);
 
-			// attribute in second capture subgroup
-			if (m.pos(2) >= 0) {
-				QLabel* label = getNextLabel();
-				if (m.cap(2).length() > 0) {
-					QString attr(m.cap(2));
+        while (it.hasNext()) {
+            QRegularExpressionMatch match = it.next();
 
-					QString statValue = getStringAttribute("renderer_statistics_formatted", qPrintable(attr));
-					QString statDesc;
+            // leading text in first capture subgroup
+            if (match.capturedStart(1) >= 0 && match.captured(1).length() > 0) {
+                QLabel* label = getNextLabel();
+                label->setText(match.captured(1));
+                label->setToolTip("");
+            }
 
-					if (statValue.length() <= maxStatLength)
-						statDesc = getAttributeDescription("renderer_statistics_formatted", qPrintable(attr));
-					else {
-						statValue = getStringAttribute("renderer_statistics_formatted_short", qPrintable(attr));
-						statDesc = getAttributeDescription("renderer_statistics_formatted_short", qPrintable(attr));
-					}
+            // attribute in second capture subgroup
+            if (match.capturedStart(2) >= 0) {
+                QLabel* label = getNextLabel();
+                if (match.captured(2).length() > 0) {
+                    QString attr(match.captured(2));
+                    QString statValue = getStringAttribute("renderer_statistics_formatted", qPrintable(attr));
+                    QString statDesc;
+                    if (statValue.length() <= maxStatLength)
+                        statDesc = getAttributeDescription("renderer_statistics_formatted", qPrintable(attr));
+                    else {
+                        statValue = getStringAttribute("renderer_statistics_formatted_short", qPrintable(attr));
+                        statDesc = getAttributeDescription("renderer_statistics_formatted_short", qPrintable(attr));
+                    }
+                    label->setText(statValue);
+                    label->setToolTip(statDesc);
+                } else {
+                    label->setText("%");
+                    label->setToolTip("");
+                }
+            }
 
-					label->setText(statValue);
-					label->setToolTip(statDesc);
-				} else {
-					label->setText("%");
-					label->setToolTip("");
-				}
-			}
-
-			// trailing text in third capture subgroup
-			if (m.pos(3) >= 0 && m.cap(3).length() > 0) {
-				QLabel* label = getNextLabel();
-				label->setText(m.cap(3));
-				label->setToolTip("");
-			}
-		}
-	}
+            // trailing text in third capture subgroup
+            if (match.capturedStart(3) >= 0 && match.captured(3).length() > 0) {
+                QLabel* label = getNextLabel();
+                label->setText(match.captured(3));
+                label->setToolTip("");
+            }
+        }
+    }
 
 private:
-	QLabel* getNextLabel() {
-		const int idx = count++;
-		QLayoutItem* item = layout->itemAt(idx);
+    QLabel* getNextLabel() {
+        const int idx = count++;
+        QLayoutItem* item = layout->itemAt(idx);
+        // if item is a stretcher then widget() returns null
+        QLabel* label = item ? qobject_cast<QLabel*>(item->widget()) : nullptr;
+        if (!label) {
+            // no existing label, create new
+            label = new QLabel("");
+            layout->insertWidget(idx, label);
+            label->setVisible(true);
+        }
+        return label;
+    }
 
-		// if item is a stretcher then widget() returns null
-		QLabel* label = item ? qobject_cast<QLabel*>(item->widget()) : NULL;
-		if (!label) {
-			// no existing label, create new
-			label = new QLabel("");
-			layout->insertWidget(idx, label);
-			label->setVisible(true);
-		}
-
-		return label;
-	}
-
-	QBoxLayout* layout;
-	int& count;
+    QBoxLayout* layout;
+    int& count;
 };
 
 void MainWindow::updateStatistics()
@@ -2272,7 +2355,8 @@ void MainWindow::logEvent(LuxLogEvent *event)
 
 	fmt.setForeground(QBrush(Qt::black));
 	cursor.setCharFormat(fmt);
-	ss << event->getMessage() << endl;
+//	ss << event->getMessage() << endl;
+	ss << event->getMessage() << '\n';
 	cursor.insertText(ss.readAll());
 
 	// scroll new message into view if cursor was at end
@@ -2398,7 +2482,8 @@ void MainWindow::loadTimeout()
 		gammawidget->resetFromFilm(true);
 
 		if (luxStatistics("sceneIsReady")) {
-			addRemoveSlaves(QVector<QString>::fromList(networkSlaves.keys()), AddSlaves);
+			// addRemoveSlaves(QVector<QString>::fromList(networkSlaves.keys()), AddSlaves);
+			addRemoveSlaves(QVector<QString>(networkSlaves.keys()), AddSlaves);
 
 			// Scene file loaded
 			// Add other render threads if necessary
@@ -2442,7 +2527,8 @@ void MainWindow::loadTimeout()
 			}
 
 			// Start updating the display by faking a resume menu item click.
-			ui->action_resumeRender->activate(QAction::Trigger);
+			// ui->action_resumeRender->activate(QAction::Trigger);
+			resumeRender();
 
 			// Enable tonemapping options and reset from values trough API
 			resetToneMappingFromFilm(false);
@@ -2900,7 +2986,8 @@ void MainWindow::queueContextMenu(const QPoint& widgetPoint)
 			if (selectedAction->text().startsWith("Render"))
 			{
 				if (isGroup)
-					index = index.child(0,0);
+//					index = index.child(0,0);
+					index = index.model()->index(0, 0, index);
 
 				if (renderQueue.isRendering() && renderQueue.getCurrentScene() == index && m_guiRenderState == RENDERING)
 					return;

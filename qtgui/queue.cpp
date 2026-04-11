@@ -25,6 +25,9 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QList>
+
+#include <QLocale>
+
 #include <QModelIndex>
 #include <QTextStream>
 
@@ -201,7 +204,8 @@ void Queue::init()
 void Queue::stopRendering(bool callback)
 {
 	if (rendering && currentSceneIndex.isValid())
-		setStatus(currentSceneIndex, "Completed " + QDateTime::currentDateTime().toString(Qt::DefaultLocaleShortDate));
+//		setStatus(currentSceneIndex, "Completed " + QDateTime::currentDateTime().toString(Qt::DefaultLocaleShortDate));
+		setStatus(currentSceneIndex, "Completed " + QLocale().toString(QDateTime::currentDateTime(), QLocale::ShortFormat));
 
 	if (callback)
 		stopRenderingCallback();
@@ -337,10 +341,20 @@ QPersistentModelIndex Queue::getDefaultGroup() const
 	return defaultGroupIndex;
 }
 
+// void Queue::setStatus(const QPersistentModelIndex& index, const QString& status)
+// {
+// 	if (index.isValid() && index.parent() != invisibleRootItem()->index())
+// 		itemFromIndex(index.parent().child(index.row(), COLUMN_STATUS))->setText(status);
+// }
+
 void Queue::setStatus(const QPersistentModelIndex& index, const QString& status)
 {
-	if (index.isValid() && index.parent() != invisibleRootItem()->index())
-		itemFromIndex(index.parent().child(index.row(), COLUMN_STATUS))->setText(status);
+    if (!index.isValid() || index.parent() == invisibleRootItem()->index())
+        return;
+
+    QStandardItem* statusItem = itemFromIndex(index)->parent()->child(index.row(), COLUMN_STATUS);
+    if (statusItem)
+        statusItem->setText(status);
 }
 
 void Queue::incrementPasses(const QPersistentModelIndex& index)

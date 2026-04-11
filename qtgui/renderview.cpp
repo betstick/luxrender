@@ -388,7 +388,8 @@ void RenderView::wheelEvent(QWheelEvent* event)
 	size_t numsteps = sizeof(zoomsteps) / sizeof(*zoomsteps);
 
 	size_t index = min<size_t>(std::upper_bound(zoomsteps, zoomsteps + numsteps, zoomfactor) - zoomsteps, numsteps-1);
-	if (event->delta() < 0) {
+//	if (event->delta() < 0) {
+	if (event->angleDelta().y() < 0) {
 		// if zoomfactor is equal to zoomsteps[index-1] we need index-2
 		while (index > 0 && zoomsteps[--index] == zoomfactor);		
 	}
@@ -450,7 +451,8 @@ void RenderView::mousePressEvent(QMouseEvent *event)
 							userSamplingPenY - userSamplingPenSize / 2);
 				}
 				break;
-			case Qt::MidButton:
+//			case Qt::MidButton:
+			case Qt::MiddleButton:
 				setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 				setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 				fitInView(renderscene->sceneRect(), Qt::KeepAspectRatio);
