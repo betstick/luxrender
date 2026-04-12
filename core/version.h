@@ -28,10 +28,10 @@
 #define VERSION_STR(v) XVERSION_STR(v)
 
 #define LUX_VN_MAJOR 1
-#define LUX_VN_MINOR 8
+#define LUX_VN_MINOR 9
 #define LUX_VN_PATCH 0
 #define LUX_VN_BUILD 0
-#define LUX_VN_LABEL "dev"
+#define LUX_VN_LABEL ""
 
 #define LUX_SERVER_PROTOCOL_VERSION  1011
 

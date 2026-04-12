@@ -448,28 +448,22 @@ MainWindow::MainWindow(QWidget *parent, bool copylog2console)
 
 	// Update timers
 	m_renderTimer = new QTimer();
-	// connect(m_renderTimer, SIGNAL(timeout()), SLOT(renderTimeout()));
-	connect(m_renderTimer, SIGNAL(timeout()), this, SLOT(renderTimeout()));
+	connect(m_renderTimer, SIGNAL(timeout()), SLOT(renderTimeout()));
 
 	m_statsTimer = new QTimer();
-	// connect(m_statsTimer, SIGNAL(timeout()), SLOT(statsTimeout()));
-	connect(m_statsTimer, SIGNAL(timeout()), this, SLOT(statsTimeout()));
+	connect(m_statsTimer, SIGNAL(timeout()), SLOT(statsTimeout()));
 
 	m_loadTimer = new QTimer();
-	// connect(m_loadTimer, SIGNAL(timeout()), SLOT(loadTimeout()));
-	connect(m_loadTimer, SIGNAL(timeout()), this, SLOT(loadTimeout()));
+	connect(m_loadTimer, SIGNAL(timeout()), SLOT(loadTimeout()));
 
 	m_saveTimer = new QTimer();
-	// connect(m_saveTimer, SIGNAL(timeout()), SLOT(saveTimeout()));
-	connect(m_saveTimer, SIGNAL(timeout()), this, SLOT(saveTimeout()));
+	connect(m_saveTimer, SIGNAL(timeout()), SLOT(saveTimeout()));
 
 	m_netTimer = new QTimer();
-	// connect(m_netTimer, SIGNAL(timeout()), SLOT(netTimeout()));
-	connect(m_netTimer, SIGNAL(timeout()), this, SLOT(netTimeout()));
+	connect(m_netTimer, SIGNAL(timeout()), SLOT(netTimeout()));
 
 	m_blinkTimer = new QTimer();
-	// connect(m_blinkTimer, SIGNAL(timeout()), SLOT(blinkTrigger()));
-	connect(m_blinkTimer, SIGNAL(timeout()), this, SLOT(blinkTrigger()));
+	connect(m_blinkTimer, SIGNAL(timeout()), SLOT(blinkTrigger()));
 
 	// Init render area
 	renderView = new RenderView(ui->frame_render);
