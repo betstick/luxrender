@@ -183,11 +183,17 @@ SET(lux_accelerators_src
 	)
 SOURCE_GROUP("Source Files\\Accelerators" FILES ${lux_accelerators_src})
 
+# These experimental sources REQUIRE host AVX2 support.
+
+SET(lux_experimental_src
+	accelerators/bvhaccel.cpp
+	)
+SOURCE_GROUP("Source Files\\Accelerators" FILES ${lux_experimental_src})
+
 SET(lux_cameras_src
 	cameras/environment.cpp
 	cameras/perspective.cpp
 	cameras/orthographic.cpp
-#	cameras/realistic.cpp
 	)
 SOURCE_GROUP("Source Files\\Cameras" FILES ${lux_cameras_src})
 
@@ -210,10 +216,8 @@ SOURCE_GROUP("Source Files\\Filters" FILES ${lux_filters_src})
 SET(lux_integrators_src
 	integrators/bidirectional.cpp
 	integrators/directlighting.cpp
-#	integrators/distributedpath.cpp
 	integrators/emission.cpp
 	integrators/exphotonmap.cpp
-#	integrators/igi.cpp
 	integrators/multi.cpp
 	integrators/path.cpp
 	integrators/single.cpp
@@ -280,17 +284,13 @@ SET(lux_pixelsamplers_src
 SOURCE_GROUP("Source Files\\Pixel Samplers" FILES ${lux_pixelsamplers_src})
 
 SET(lux_samplers_src
-#	samplers/erpt.cpp
 	samplers/lowdiscrepancy.cpp
 	samplers/metrosampler.cpp
 	samplers/random.cpp
-#	samplers/sobol.cpp
 	)
 SOURCE_GROUP("Source Files\\Samplers" FILES ${lux_samplers_src})
 
 SET(lux_renderers_src
-#	renderers/hybridrenderer.cpp
-#	renderers/hybridsamplerrenderer.cpp
 	renderers/samplerrenderer.cpp
 	renderers/sppmrenderer.cpp
 	renderers/sppm/photonsampler.cpp
@@ -305,7 +305,6 @@ SOURCE_GROUP("Source Files\\Renderers" FILES ${lux_renderers_src})
 
 SET(lux_rendererstatistics_src
 	renderers/statistics/samplerstatistics.cpp
-#	renderers/statistics/hybridsamplerstatistics.cpp
 	renderers/statistics/sppmstatistics.cpp
 	)
 SOURCE_GROUP("Source Files\\Renderers\\Statistics" FILES ${lux_rendererstatistics_src})
@@ -447,10 +446,22 @@ SET(lux_modules_src
 	${lux_volumes_src}
 	)
 
-SET(lux_lib_src
-	${lux_core_all_src}
-	${lux_modules_src}
-	)
+# If AVX2 is not found, exlude experimental sources.
+
+IF(AVX_FOUND)
+	MESSAGE(STATUS "AVX2 detected. Including experimental sources.")
+	SET(lux_lib_src
+		${lux_core_all_src}
+		${lux_modules_src}
+		${lux_experimental_src}
+		)
+ELSE()
+	MESSAGE(STATUS "No AVX2 support. Excluding experimental sources.")
+	SET(lux_lib_src
+		${lux_core_all_src}
+		${lux_modules_src}
+		)
+ENDIF()
 
 SET(lux_cpp_api_src
 	cpp_api/dllmain.cpp
@@ -586,17 +597,15 @@ SET(lux_core_reflection_microfacetdistribution_hdr
 SOURCE_GROUP("Header Files\\Core\\Reflection\\Microfacet Distribution" FILES ${lux_core_reflection_microfacetdistribution_hdr})
 SET(lux_accelerators_hdr
 	accelerators/bruteforce.h
-#	accelerators/bvhaccel.h
+	accelerators/bvhaccel.h
 	accelerators/qbvhaccel.h
 	accelerators/tabreckdtreeaccel.h
-#	accelerators/unsafekdtreeaccel.h
 	)
 SOURCE_GROUP("Header Files\\Accelerators" FILES ${lux_accelerators_hdr})
 SET(lux_cameras_hdr
 	cameras/environment.h
 	cameras/orthographic.h
 	cameras/perspective.h
-#	cameras/realistic.h
 	)
 SOURCE_GROUP("Header Files\\Cameras" FILES ${lux_cameras_hdr})
 SET(lux_cpp_api_hdr
@@ -627,10 +636,8 @@ SOURCE_GROUP("Header Files\\Filters" FILES ${lux_filters_hdr})
 SET(lux_integrators_hdr
 	integrators/bidirectional.h
 	integrators/directlighting.h
-#	integrators/distributedpath.h
 	integrators/emission.h
 	integrators/exphotonmap.h
-#	integrators/igi.h
 	integrators/multi.h
 	integrators/path.h
 	integrators/single.h
@@ -693,15 +700,12 @@ SET(lux_pixelsamplers_hdr
 	)
 SOURCE_GROUP("Header Files\\Pixel Samplers" FILES ${lux_pixelsamplers_hdr})
 SET(lux_renderers_hdr
-#	renderers/hybridrenderer.h
-#	renderers/hybridsamplerrenderer.h
 	renderers/samplerrenderer.h
 	renderers/sppmrenderer.h
 	)
 SOURCE_GROUP("Header Files\\Renderers" FILES ${lux_renderers_hdr})
 SET(lux_rendererstatistics_hdr
 	renderers/statistics/samplerstatistics.h
-#	renderers/statistics/hybridsamplerstatistics.h
 	renderers/statistics/sppmstatistics.h
 	)
 SOURCE_GROUP("Header Files\\Renderers\\Statistics" FILES ${lux_rendererstatistics_hdr})
@@ -712,7 +716,6 @@ SET(lux_renderers_sppm_hdr
 	)
 SOURCE_GROUP("Header Files\\Renderers\\SPPM" FILES ${lux_renderers_sppm_hdr})
 SET(lux_samplers_hdr
-#	samplers/erpt.h
 	samplers/lowdiscrepancy.h
 	samplers/metrosampler.h
 	samplers/random.h

@@ -38,10 +38,14 @@ ENDIF(MSVC)
 
 IF(COMMAND cmake_policy)
 	cmake_policy(SET CMP0003 NEW)
+	cmake_policy(SET CMP0148 OLD)
+	cmake_policy(SET CMP0167 OLD)
 ENDIF(COMMAND cmake_policy)
 
 PROJECT(lux)
 SET(VERSION 1.9)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 SET(LUX_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
@@ -412,49 +416,22 @@ ELSEIF(MSVC)
 	ELSE(APPLE)
 	# Dade - default compiler options
 	# Removed "-O3" from definitions in order to have CMake Release/Debug options to work
-	ADD_DEFINITIONS(-msse2 -mfpmath=sse -ftree-vectorize -funroll-loops -Wall -fPIC -DHAVE_PTHREAD_H)
+	ADD_DEFINITIONS(-ftree-vectorize -funroll-loops -Wall -fPIC -DHAVE_PTHREAD_H)
+
+	FIND_PACKAGE(AVX 2.0 EXACT)
+	
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
+		IF(AVX_FOUND)
+			MESSAGE(STATUS "AVX2 detected. Adding compiler definitions.")
+			ADD_DEFINITIONS(-mavx2 -march=haswell)
+		ELSE()
+			MESSAGE(STATUS "No AVX2 support. Reverting to SSE2")
+			ADD_DEFINITIONS(-msse2 -mfpmath=sse -march=nocona)
+		ENDIF()
 	# The QBVH accelerator needs to be compiled with much reduced optimizations
 	# otherwise gcc produces incorrect code and ruins the render on 64bits machines
 	SET_SOURCE_FILES_PROPERTIES(accelerators/qbvhaccel.cpp COMPILE_FLAGS "-O1")
 ENDIF(APPLE)
-
-#############################################################################
-# Compiler flags for specific setup
-#############################################################################
-
-# Dade - GCC Profiling (remember to uncomment the line at the end of file too)
-#ADD_DEFINITIONS(-pg -g -O2 -msse2 -mfpmath=sse -ftree-vectorize -Wall -DHAVE_PTHREAD_H)
-
-# Dade - GCC 2 pass optimization (remember to uncomment the line at the end of file too)
-#ADD_DEFINITIONS(-O3 --coverage -march=prescott -mfpmath=sse -ftree-vectorize -funroll-loops -ffast-math -Wall -DHAVE_PTHREAD_H)
-#ADD_DEFINITIONS(-O3 -fbranch-probabilities -march=prescott -mfpmath=sse -ftree-vectorize -funroll-loops -ffast-math -Wall -DHAVE_PTHREAD_H)
-
-# Dade - my settings
-#ADD_DEFINITIONS(-g -O0 -DHAVE_PTHREAD_H)
-#ADD_DEFINITIONS(-O3 -march=prescott -msse2 -mfpmath=sse -ftree-vectorize -funroll-loops -Wall -DHAVE_PTHREAD_H)
-#ADD_DEFINITIONS(-O3 -march=athlon-xp -m3dnow -msse2 -mfpmath=sse -ftree-vectorize -funroll-loops -Wall -DHAVE_PTHREAD_H )
-
-# Dade - Intel CC settings (double pass, 32bit, remember to uncomment the line at the end of file too)
-#  rm -rf CMakeCache.txt CMakeFiles
-#  CC=/opt/intel/cc/10.1.015/bin/icc CXX=/opt/intel/cc/10.1.015/bin/icpc cmake lux
-# Pass 1
-#ADD_DEFINITIONS(-prof-gen -prof-dir /tmp  -O3 -ipo -mtune=core2 -xT -unroll -fp-model fast=2 -rcd -no-prec-div -DHAVE_PTHREAD_H '-D"__sync_fetch_and_add(ptr,addend)=_InterlockedExchangeAdd(const_cast<void*>(reinterpret_cast<volatile void*>(ptr)), addend)"')
-# Pass 2
-#ADD_DEFINITIONS(-prof-use -prof-dir /tmp  -O3 -ipo -mtune=core2 -xT -unroll -fp-model fast=2 -rcd -no-prec-div -DHAVE_PTHREAD_H '-D"__sync_fetch_and_add(ptr,addend)=_InterlockedExchangeAdd(const_cast<void*>(reinterpret_cast<volatile void*>(ptr)), addend)"')
- 
-# Dade - Intel CC settings (single pass, 32bit)
-#ADD_DEFINITIONS(-O3 -ip -mtune=core2 -xT -unroll -fp-model fast=2 -rcd -no-prec-div -DHAVE_PTHREAD_H '-D"__sync_fetch_and_add(ptr,addend)=_InterlockedExchangeAdd(const_cast<void*>(reinterpret_cast<volatile void*>(ptr)), addend)"')
-
-# Dade - Intel CC settings (single pass, 64bit)
-#ADD_DEFINITIONS(-O3 -ip -mtune=core2 -xT -unroll -fp-model fast=2 -rcd -no-prec-div -DHAVE_PTHREAD_H '-D"__sync_fetch_and_add(ptr,addend)=_InterlockedExchangeAdd(const_cast<void*>(reinterpret_cast<volatile void*>(ptr)), addend)"' -DBOOST_NO_INTRINSIC_INT64_T "-D'__builtin_vsnprintf(__out, __size, __fmt, __args)'='__builtin_vsnprintf(__out, __size, __fmt, (char *) __args)'") 
-
-#ADD_DEFINITIONS(-O3 -msse -mfpmath=sse -ftree-vectorize -Wall -DHAVE_PTHREAD_H)
-#ADD_DEFINITIONS(-O3 -march=athlon-xp -mmmx -m3dnow -msse -mfpmath=sse -ftree-vectorize -Wall -DHAVE_PTHREAD_H )
-#ADD_DEFINITIONS(-O3 -Wall -msse -msse2 -DLUX_USE_SSE -DHAVE_PTHREAD_H)
-#ADD_DEFINITIONS(-g -Wall -msse -DHAVE_PTHREAD_H)
-#ICC definitions
-#ADD_DEFINITIONS(-O3 -ipo -no-prec-div -static -fp-model fast=2 -rcd)
 
 #############################################################################
 #############################################################################
