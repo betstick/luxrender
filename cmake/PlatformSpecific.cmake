@@ -303,15 +303,26 @@ ENDIF(APPLE)
 ###########################################################################
 
 IF(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+
+	FIND_PACKAGE(AVX 2.0 EXACT)
+
 	# Update if necessary
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -msse2 -msse3 -mssse3")
+
+	IF(AVX_FOUND)
+		MESSAGE(STATUS "AVX2 detected. Adding compiler definitions.")
+		ADD_DEFINITIONS(-mavx2 -march=haswell)
+	ELSE()
+		MESSAGE(STATUS "No AVX2 support. Reverting to SSE2")
+		ADD_DEFINITIONS(-msse2 -mfpmath=sse -march=nocona)
+	ENDIF()
+
 	IF(NOT CYGWIN)
-	  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 	ENDIF(NOT CYGWIN)
 
 	SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
-	SET(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -msse2 -mfpmath=sse -funsafe-math-optimizations -ftree-vectorize -funroll-loops -fvariable-expansion-in-unroller")
+	SET(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -funsafe-math-optimizations -ftree-vectorize -funroll-loops -fvariable-expansion-in-unroller")
 ENDIF()
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

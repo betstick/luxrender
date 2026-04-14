@@ -147,6 +147,21 @@ public:
 } __attribute__ ((aligned(16)));
 #endif // NOBOOK
 
+#if defined(WIN32) && !defined(__CYGWIN__) // NOBOOK
+class __declspec(align(32)) Aligned32 {
+#else // NOBOOK
+class Aligned32 {
+#endif // NOBOOK
+public:
+	void *operator new(size_t s) { return AllocAligned<char>(s, 32); }
+	void *operator new (size_t s, void *q) { return q; }
+	void operator delete(void *p) { FreeAligned(p); }
+#if defined(WIN32) && !defined(__CYGWIN__) // NOBOOK
+} ;
+#else // NOBOOK
+} __attribute__ ((aligned(32)));
+#endif // NOBOOK
+
 /*
 template <class T> class ObjectArena {
 public:
