@@ -189,6 +189,12 @@ public:
 	const Mesh *mesh;
 	const int *v;
 	bool is_Degenerate;
+	// Cached intersection data — filled by constructor after all vertex swaps.
+	// Eliminates scattered mesh->p[v[i]] pointer-chase loads from the hot path.
+	Point  cachedP0;    // vertex 0 in world space
+	Vector cachedE1;    // edge 1 = p1 - p0
+	Vector cachedE2;    // edge 2 = p2 - p0
+	Normal cachedNorm;  // Normalize(Cross(e1, e2)), pre-computed once
 };
 
 class MeshWaldTriangle : public MeshBaryTriangle {
