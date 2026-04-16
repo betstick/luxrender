@@ -19,27 +19,17 @@
 #   Lux website: http://www.luxrender.net                                 #
 ###########################################################################
 
-# SET(CMAKE_USE_PYTHON_VERSION 3.2)
+# Find Python (interpreter + headers + lib)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
-IF(APPLE)
-ELSE(APPLE)
-	IF(PYTHON_CUSTOM)
-		IF (NOT PYTHON_LIBRARIES)
-			MESSAGE(FATAL_ERROR " PYTHON_CUSTOM set but PYTHON_LIBRARIES NOT set.")
-		ENDIF (NOT PYTHON_LIBRARIES)
-		IF (NOT PYTHON_INCLUDE_PATH)
-			MESSAGE(FATAL_ERROR " PYTHON_CUSTOM set but PYTHON_INCLUDE_PATH NOT set.")
-		ENDIF (NOT PYTHON_INCLUDE_PATH)
-	ELSE(PYTHON_CUSTOM)
-		FIND_PACKAGE(PythonLibs)
-	ENDIF(PYTHON_CUSTOM)
-ENDIF(APPLE)
+message(STATUS "Python executable: ${Python3_EXECUTABLE}")
+message(STATUS "Python include dir: ${Python3_INCLUDE_DIRS}")
+message(STATUS "Python libraries: ${Python3_LIBRARIES}")
 
-IF(PYTHONLIBS_FOUND OR PYTHON_CUSTOM)
-	MESSAGE(STATUS "Python library directory: " ${PYTHON_LIBRARIES} )
-	MESSAGE(STATUS "Python include directory: " ${PYTHON_INCLUDE_PATH} )
+# Include dirs
+include_directories(BEFORE SYSTEM ${Python3_INCLUDE_DIRS})
 
-	INCLUDE_DIRECTORIES(SYSTEM ${PYTHON_INCLUDE_PATH})
+IF(Python3_FOUND)
 
 	SOURCE_GROUP("Source Files\\Python" FILES python/binding.cpp)
 	SOURCE_GROUP("Header Files\\Python" FILES
@@ -54,19 +44,21 @@ IF(PYTHONLIBS_FOUND OR PYTHON_CUSTOM)
 		)
 
 	ADD_LIBRARY(pylux MODULE python/binding.cpp)
-	IF(APPLE)
-	ELSE(APPLE)
 
 		target_link_libraries(pylux PRIVATE
     		lux
     		Threads::Threads
     		Boost::python
+			Boost::thread
 		)
 		
-		SET_TARGET_PROPERTIES(pylux PROPERTIES PREFIX "")
+		SET_TARGET_PROPERTIES(pylux PROPERTIES
+		PREFIX ""
+		BUILD_WITH_INSTALL_RPATH TRUE
+		BUILD_RPATH "$ORIGIN"
+)
+		
 
-	ENDIF(APPLE)
-
-	ELSE(PYTHONLIBS_FOUND OR PYTHON_CUSTOM)
+ELSE(Python3_FOUND)
 	MESSAGE( STATUS "Warning: could not find Python libraries - not building python module")
-ENDIF(PYTHONLIBS_FOUND OR PYTHON_CUSTOM)
+ENDIF(Python3_FOUND)
