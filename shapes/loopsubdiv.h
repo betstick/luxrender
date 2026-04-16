@@ -37,7 +37,7 @@ namespace lux
 // Comparison operator for Point, used in std::set
 class PointCompare {
 public:
-	bool operator()(const Point &a, const Point &b) {
+	bool operator()(const Point &a, const Point &b) const {
 		if (a.x != b.x)
 			return a.x < b.x;
 		if (a.y != b.y)

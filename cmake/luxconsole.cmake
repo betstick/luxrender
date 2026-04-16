@@ -33,8 +33,14 @@ SOURCE_GROUP("Header Files\\Console" FILES ${LUXCONSOLE_HDRS})
 ADD_EXECUTABLE(luxconsole ${LUXCONSOLE_SRCS} ${LUXCONSOLE_HDRS})
 
 IF(APPLE)
-	add_dependencies(luxconsole luxShared) # explicitly say that the target depends on corelib build first
-	TARGET_LINK_LIBRARIES(luxconsole ${OSX_SHARED_CORELIB} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 ELSE(APPLE)
-	TARGET_LINK_LIBRARIES(luxconsole ${LUX_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${LUX_LIBRARY_DEPENDS})
-ENDIF(APPLE)
+    target_link_libraries(luxconsole PRIVATE
+        lux
+        Threads::Threads
+		Boost::filesystem
+		Boost::program_options
+		Boost::thread
+    	Boost::chrono
+		Boost::thread
+    )
+endif()

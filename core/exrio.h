@@ -41,4 +41,3 @@ bool WriteOpenEXRImage(const string &name, u_int xRes, u_int yRes, const float *
 }//namespace lux
 
 #endif // LUX_EXRIO_H
-

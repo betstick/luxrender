@@ -19,10 +19,8 @@
 #   Lux website: http://www.luxrender.net                                 #
 ###########################################################################
 
-# FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 FIND_PACKAGE(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
 
-# IF(Qt5_FOUND)
 IF(Qt6_FOUND)
 	MESSAGE(STATUS "Qt library directory: " ${QT_LIBRARY_DIR} )
 	MESSAGE( STATUS "Qt include directory: " ${QT_INCLUDE_DIR} )
@@ -96,49 +94,26 @@ IF(Qt6_FOUND)
 		)
 	SOURCE_GROUP("Resource Files\\Qt GUI" FILES ${LUXQTGUI_RCS})
 
-	# QT5_ADD_RESOURCES( LUXQTGUI_RC_SRCS ${LUXQTGUI_RCS})
-	# QT5_WRAP_UI( LUXQTGUI_UI_HDRS ${LUXQTGUI_UIS} )
 	QT_ADD_RESOURCES( LUXQTGUI_RC_SRCS ${LUXQTGUI_RCS})
 	QT_WRAP_UI( LUXQTGUI_UI_HDRS ${LUXQTGUI_UIS} )
 
-	# The next OPTIONS directive prevent the moc to include some boost files
-	# because qt 4 moc parser fails on some complexes macro definiton in boost >=
-	# 1.53.
-	# QT5_WRAP_CPP( LUXQTGUI_MOC_SRCS ${LUXQTGUI_MOC} OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED -DBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 	QT_WRAP_CPP( LUXQTGUI_MOC_SRCS ${LUXQTGUI_MOC} OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED -DBOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION )
 
-	#file (GLOB TRANSLATIONS_FILES qtgui/translations/*.ts)
-	#qt4_create_translation(QM_FILES ${FILES_TO_TRANSLATE} ${TRANSLATIONS_FILES})
-
-	#ADD_EXECUTABLE(luxrender ${GUI_TYPE} ${LUXQTGUI_SRCS} ${LUXQTGUI_MOC_SRCS} ${LUXQTGUI_RC_SRCS} ${LUXQTGUI_UI_HDRS} ${QM_FILES})
 	ADD_EXECUTABLE(luxrender ${GUI_TYPE} ${LUXQTGUI_SRCS} ${LUXQTGUI_MOC_SRCS} ${LUXQTGUI_RC_SRCS} ${LUXQTGUI_UI_HDRS})
 
 	IF(APPLE)
-		IF( NOT OSX_OPTION_XCODE_4.1)
-			SET_TARGET_PROPERTIES(luxrender PROPERTIES XCODE_ATTRIBUTE_GCC_VERSION 4.2) # QT will not play with xcode-4.0 compiler default llvm-gcc-4.2 !
-		ENDIF( NOT OSX_OPTION_XCODE_4.1)
-		SET_TARGET_PROPERTIES(luxrender PROPERTIES XCODE_ATTRIBUTE_LLVM_LTO NO ) # always disabled due Qt does not like it
-		INCLUDE_DIRECTORIES (SYSTEM /Developer/Headers/FlatCarbon /usr/local/include)
-		FIND_LIBRARY(CARBON_LIBRARY Carbon)
-		FIND_LIBRARY(QT_LIBRARY QtCore QtGui)
-		FIND_LIBRARY(AGL_LIBRARY AGL )
-		FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices )
-
-		MESSAGE(STATUS ${CARBON_LIBRARY})
-		MARK_AS_ADVANCED (CARBON_LIBRARY)
-		MARK_AS_ADVANCED (QT_LIBRARY)
-		MARK_AS_ADVANCED (AGL_LIBRARY)
-		MARK_AS_ADVANCED (APP_SERVICES_LIBRARY)
-		SET(EXTRA_LIBS ${CARBON_LIBRARY} ${AGL_LIBRARY} ${APP_SERVICES_LIBRARY})
-		INCLUDE(macosx_bundle) # bundle operations
-		TARGET_LINK_LIBRARIES(luxrender ${OSX_SHARED_CORELIB} ${QT_LIBRARIES} ${EXTRA_LIBS} ${Boost_LIBRARIES})
 	ELSE(APPLE)
-		MESSAGE(STATUS "Qt libs: ${QT_LIBRARIES}}")
-		# TARGET_LINK_LIBRARIES(luxrender Qt5::Core Qt5::Gui Qt5::Widgets ${LUX_LIBRARY} ${LUX_LIBRARY_DEPENDS})
-		TARGET_LINK_LIBRARIES(luxrender Qt6::Core Qt6::Gui Qt6::Widgets ${LUX_LIBRARY} ${LUX_LIBRARY_DEPENDS})
+		target_link_libraries(luxrender PRIVATE
+    		Qt6::Core
+    		Qt6::Gui
+    		Qt6::Widgets
+    		Boost::program_options
+			Boost::filesystem
+			Boost::thread
+			lux
+		)
 	ENDIF(APPLE)
-# ELSE(Qt5_FOUND)
+
 ELSE(Qt6_FOUND)
 	MESSAGE( FATAL_ERROR "Warning : could not find Qt - not building Qt GUI")
-# ENDIF(Qt5_FOUND)
 ENDIF(Qt6_FOUND)

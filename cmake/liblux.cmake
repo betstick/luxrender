@@ -898,12 +898,43 @@ ELSEIF(MSVC)
 	# Make CMake output both libs with the same name
 	SET_TARGET_PROPERTIES(luxShared PROPERTIES OUTPUT_NAME lux)
 	SET_TARGET_PROPERTIES(luxShared PROPERTIES DEFINE_SYMBOL LUX_INTERNAL)
-ELSE(APPLE)
-	ADD_LIBRARY(luxShared SHARED ${lux_cpp_api_src} ${lux_lib_src} ${lux_lib_hdr} ${lux_parser_src})
-	TARGET_LINK_LIBRARIES(luxShared ${LUX_LIBRARY_DEPENDS})
-	SET_TARGET_PROPERTIES(luxShared PROPERTIES OUTPUT_NAME lux)
-	SET_TARGET_PROPERTIES(luxShared PROPERTIES DEFINE_SYMBOL LUX_INTERNAL) # for controlling visibility
-ENDIF(APPLE)
+ELSEIF(NOT APPLE)
+
+    set(LUX_SOURCES
+        ${lux_cpp_api_src}
+        ${lux_lib_src}
+        ${lux_lib_hdr}
+        ${lux_parser_src}
+    )
+
+    add_library(lux SHARED ${LUX_SOURCES})
+
+    target_link_libraries(lux PRIVATE
+        luxrays
+        OpenImageIO::OpenImageIO
+        OpenEXR::OpenEXR
+		OpenEXR::Iex
+        Imath::Imath
+        Boost::thread
+        Boost::filesystem
+		Boost::iostreams
+    	Boost::serialization
+        Boost::python
+        PNG::PNG
+        JPEG::JPEG
+        TIFF::TIFF
+        FFTW3::fftw3
+        Threads::Threads
+    )
+
+    target_compile_definitions(lux PRIVATE LUX_INTERNAL)
+
+    set_target_properties(lux PROPERTIES
+        BUILD_WITH_INSTALL_RPATH TRUE
+        INSTALL_RPATH "$ORIGIN"
+    )
+
+endif()
 
 
 #ADD_CUSTOM_TARGET(luxStatic SOURCES ${lux_lib_hdr})

@@ -36,7 +36,7 @@ ENDIF(APPLE)
 IF (LUXRAYS_INCLUDE_DIRS AND LUXRAYS_LIBRARY)
 	MESSAGE(STATUS "LuxRays include directory: " ${LUXRAYS_INCLUDE_DIRS})
 	MESSAGE(STATUS "LuxRays library directory: " ${LUXRAYS_LIBRARY})
-	INCLUDE_DIRECTORIES(SYSTEM ${LUXRAYS_INCLUDE_DIRS})
+	INCLUDE_DIRECTORIES(BEFORE SYSTEM ${LUXRAYS_INCLUDE_DIRS})
 ELSE (LUXRAYS_INCLUDE_DIRS AND LUXRAYS_LIBRARY)
 	MESSAGE(FATAL_ERROR "LuxRays not found.")
 ENDIF (LUXRAYS_INCLUDE_DIRS AND LUXRAYS_LIBRARY)
@@ -93,78 +93,15 @@ ENDIF (NOT FLEX_NOT_AVAILABLE)
 #############################################################################
 #############################################################################
 
-IF(APPLE)
-	SET(BOOST_ROOT ${OSX_DEPENDENCY_ROOT})
-ENDIF(APPLE)
-SET(Boost_MINIMUM_VERSION "1.44.0")
-SET(Boost_ADDITIONAL_VERSIONS "1.47.0" "1.46.1" "1.46.0" "1.46" "1.45.0" "1.45" "1.44.0" "1.44" )
-SET(Boost_COMPONENTS thread program_options filesystem serialization iostreams regex)
-IF(WIN32)
-	SET(Boost_COMPONENTS ${Boost_COMPONENTS} zlib)
-	SET(Boost_USE_STATIC_LIBS ON)
-	SET(Boost_USE_MULTITHREADED ON)
-	SET(Boost_USE_STATIC_RUNTIME OFF)
-	SET(BOOST_ROOT "${BOOST_SEARCH_PATH}")
-ENDIF(WIN32)
-
-IF(MSVC AND BOOST_python_LIBRARYDIR)
-	SET(_boost_libdir "${BOOST_LIBRARYDIR}")
-	SET(BOOST_LIBRARYDIR "${BOOST_python_LIBRARYDIR}")
-ENDIF(MSVC AND BOOST_python_LIBRARYDIR)
-
-FIND_PACKAGE(Boost ${Boost_MINIMUM_VERSION} COMPONENTS python REQUIRED)
-
-IF(MSVC AND BOOST_python_LIBRARYDIR)
-	SET(BOOST_LIBRARYDIR "${_boost_libdir}")
-	SET(_boost_libdir)
-ENDIF(MSVC AND BOOST_python_LIBRARYDIR)
-
-SET(Boost_python_FOUND ${Boost_FOUND})
-SET(Boost_python_LIBRARIES ${Boost_LIBRARIES})
-SET(Boost_FOUND)
-SET(Boost_LIBRARIES)
-
-FIND_PACKAGE(Boost ${Boost_MINIMUM_VERSION} COMPONENTS ${Boost_COMPONENTS} REQUIRED)
-
-IF(APPLE)
-	# the searchmacro always gives confusing "NOTFOUND" on macos repo
-	SET(Boost_DIR ${OSX_DEPENDENCY_ROOT} CACHE STRING "x" FORCE)
-ENDIF(APPLE)
-
-IF(Boost_FOUND)
-	MESSAGE(STATUS "Boost library directory: " ${Boost_LIBRARY_DIRS})
-	MESSAGE(STATUS "Boost include directory: " ${Boost_INCLUDE_DIRS})
-
-	# Don't use old boost versions interfaces
-	ADD_DEFINITIONS(-DBOOST_FILESYSTEM_NO_DEPRECATED)
-	# Retain compatibility with Boost 1.44 and 1.45
-	ADD_DEFINITIONS(-DBOOST_FILESYSTEM_VERSION=3)
-	INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
-	if (Boost_USE_STATIC_LIBS)
-		ADD_DEFINITIONS(-DBOOST_STATIC_LIB)
-		ADD_DEFINITIONS(-DBOOST_PYTHON_STATIC_LIB)
-	endif()
-ELSE(Boost_FOUND)
-	MESSAGE(FATAL_ERROR "Could not find Boost")
-ENDIF(Boost_FOUND)
-
-
-#############################################################################
-#############################################################################
-###########################   FREEIMAGE LIBRARIES    ########################
-#############################################################################
-#############################################################################
-
-	FIND_PACKAGE(FreeImage REQUIRED)
-
-	IF(FREEIMAGE_FOUND)
-		MESSAGE(STATUS "FreeImage include directory: " ${FREEIMAGE_INCLUDE_DIR})
-		MESSAGE(STATUS "FreeImage library: " ${FREEIMAGE_LIBRARIES})
-		INCLUDE_DIRECTORIES(SYSTEM ${FREEIMAGE_INCLUDE_DIR})
-	ELSE(FREEIMAGE_FOUND)
-		MESSAGE(FATAL_ERROR "Could not find FreeImage")
-	ENDIF(FREEIMAGE_FOUND)
-
+find_package(Boost REQUIRED COMPONENTS
+    thread
+    program_options
+    filesystem
+    serialization
+    iostreams
+    regex
+    python
+)
 
 #############################################################################
 #############################################################################
@@ -172,21 +109,16 @@ ENDIF(Boost_FOUND)
 #############################################################################
 #############################################################################
 
-# !!!!freeimage needs headers from or matched with freeimage !!!!
-FIND_PACKAGE(OpenEXR REQUIRED)
-INCLUDE_DIRECTORIES(SYSTEM ${OPENEXR_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(SYSTEM ${OpenEXR_half_INCLUDE_DIR})
-INCLUDE_DIRECTORIES(SYSTEM ${OpenEXR_Imath_INCLUDE_DIR})
-INCLUDE_DIRECTORIES(${OPENEXR_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(${OpenEXR_half_INCLUDE_DIR})
-INCLUDE_DIRECTORIES(${OpenEXR_Imath_INCLUDE_DIR})
-#IF (OPENEXR_INCLUDE_DIRS)
-#	MESSAGE(STATUS "OpenEXR include directory: " ${OPENEXR_INCLUDE_DIRS})
-#	INCLUDE_DIRECTORIES(SYSTEM ${OPENEXR_INCLUDE_DIRS})
-#ELSE(OPENEXR_INCLUDE_DIRS)
-#	MESSAGE(FATAL_ERROR "OpenEXR headers not found.")
-#ENDIF(OPENEXR_INCLUDE_DIRS)
+find_package(OpenEXR CONFIG REQUIRED)
+find_package(Imath CONFIG REQUIRED)
 
+#############################################################################
+#############################################################################
+##########################   OPENIMAGEIO LIBRARIES    #######################
+#############################################################################
+#############################################################################
+
+find_package(OpenImageIO CONFIG REQUIRED)
 
 #############################################################################
 #############################################################################
@@ -194,12 +126,11 @@ INCLUDE_DIRECTORIES(${OpenEXR_Imath_INCLUDE_DIR})
 #############################################################################
 #############################################################################
 
-# !!!!freeimage needs headers from or matched with freeimage !!!!
 IF(NOT APPLE)
 	FIND_PACKAGE(PNG)
 	IF(PNG_INCLUDE_DIRS)
 		MESSAGE(STATUS "PNG include directory: " ${PNG_INCLUDE_DIRS})
-		INCLUDE_DIRECTORIES(SYSTEM ${PNG_INCLUDE_DIRS})
+		INCLUDE_DIRECTORIES(BEFORE SYSTEM ${PNG_INCLUDE_DIRS})
 	ELSE(PNG_INCLUDE_DIRS)
 		MESSAGE(STATUS "Warning : could not find PNG headers - building without png support")
 	ENDIF(PNG_INCLUDE_DIRS)
@@ -207,64 +138,24 @@ ENDIF(NOT APPLE)
 
 #############################################################################
 #############################################################################
-###########################   ADDITIONAL LIBRARIES   ########################
-#############################################################################
-#############################################################################
-
-IF(LUX_USE_FREEIMAGE)
-	# The OpenEXR library might be accessible from the FreeImage library
-	# Otherwise add it to the FreeImage library (required by exrio)
-	TRY_COMPILE(FREEIMAGE_PROVIDES_OPENEXR ${CMAKE_BINARY_DIR}
-		${CMAKE_SOURCE_DIR}/cmake/FindFreeImage.cxx
-		CMAKE_FLAGS
-		"-DINCLUDE_DIRECTORIES:STRING=${OPENEXR_INCLUDE_DIRS}"
-		"-DLINK_LIBRARIES:STRING=${FREEIMAGE_LIBRARIES}"
-		COMPILE_DEFINITIONS -D__TEST_OPENEXR__)
-
-	# The PNG library might be accessible from the FreeImage library
-	# Otherwise add it to the FreeImage library (required by pngio)
-	TRY_COMPILE(FREEIMAGE_PROVIDES_PNG ${CMAKE_BINARY_DIR}
-		${CMAKE_SOURCE_DIR}/cmake/FindFreeImage.cxx
-		CMAKE_FLAGS
-		"-DINCLUDE_DIRECTORIES:STRING=${PNG_INCLUDE_DIRS}"
-		"-DLINK_LIBRARIES:STRING=${FREEIMAGE_LIBRARIES}"
-		COMPILE_DEFINITIONS -D__TEST_PNG__)
-
-	IF(NOT FREEIMAGE_PROVIDES_OPENEXR)
-		IF(OPENEXR_LIBRARIES)
-			MESSAGE(STATUS "OpenEXR library: " ${OPENEXR_LIBRARIES})
-			SET(FREEIMAGE_LIBRARIES ${FREEIMAGE_LIBRARIES} ${OPENEXR_LIBRARIES})
-		ELSE(OPENEXR_LIBRARIES)
-			MESSAGE(FATAL_ERROR "Unable to find OpenEXR library")
-		ENDIF(OPENEXR_LIBRARIES)
-	ENDIF(NOT FREEIMAGE_PROVIDES_OPENEXR)
-
-	IF (PNG_INCLUDE_DIRS AND NOT FREEIMAGE_PROVIDES_PNG)
-		IF(PNG_LIBRARIES)
-			MESSAGE(STATUS "PNG library: " ${PNG_LIBRARIES})
-			SET(FREEIMAGE_LIBRARIES ${FREEIMAGE_LIBRARIES} ${PNG_LIBRARIES})
-		ELSE(PNG_LIBRARIES)
-			MESSAGE(FATAL_ERROR "Unable to find PNG library")
-		ENDIF(PNG_LIBRARIES)
-	ENDIF(PNG_INCLUDE_DIRS AND NOT FREEIMAGE_PROVIDES_PNG)
-ENDIF(LUX_USE_FREEIMAGE)
-
-#############################################################################
-#############################################################################
 ########################### FFTW  LIBRARIES SETUP ###########################
 #############################################################################
 #############################################################################
 
-IF(APPLE)
-	SET(FFTW_INCLUDE_DIR ${OSX_DEPENDENCY_ROOT}/include/fftw3)
-	SET(FFTW_LIBRARIES ${OSX_DEPENDENCY_ROOT}/lib/libfftw3.a)
-	INCLUDE_DIRECTORIES(SYSTEM ${FFTW_INCLUDE_DIR})
-ELSE(APPLE)
-	FIND_PACKAGE(FFTW REQUIRED)
-	MESSAGE(STATUS "FFTW include directory: " ${FFTW_INCLUDE_DIR})
-	INCLUDE_DIRECTORIES(SYSTEM ${FFTW_INCLUDE_DIR})
-	MESSAGE(STATUS "FFTW library: " ${FFTW_LIBRARIES})
-ENDIF(APPLE)
+if(NOT TARGET FFTW3::fftw3)
+    find_path(FFTW3_INCLUDE_DIR fftw3.h)
+    find_library(FFTW3_LIBRARY fftw3)
+
+    if(NOT FFTW3_INCLUDE_DIR OR NOT FFTW3_LIBRARY)
+        message(FATAL_ERROR "FFTW3 not found")
+    endif()
+
+    add_library(FFTW3::fftw3 UNKNOWN IMPORTED)
+    set_target_properties(FFTW3::fftw3 PROPERTIES
+        IMPORTED_LOCATION "${FFTW3_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${FFTW3_INCLUDE_DIR}"
+    )
+endif()
 
 #############################################################################
 #############################################################################
@@ -272,6 +163,11 @@ ENDIF(APPLE)
 #############################################################################
 #############################################################################
 
-FIND_PACKAGE(Threads REQUIRED)
+find_package(Threads REQUIRED)
+
+add_library(CMath::CMath INTERFACE IMPORTED GLOBAL)
+target_link_libraries(CMath::CMath INTERFACE m)
+
+find_package(TIFF REQUIRED)
 
 ADD_DEFINITIONS("-DLUXRAYS_DISABLE_OPENCL")

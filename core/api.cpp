@@ -43,8 +43,6 @@ using std::endl;
 #include <cstdio>
 using std::FILE;
 
-#include <FreeImage.h>
-
 using namespace lux;
 
 #define	EXTRACT_PARAMETERS(_start) \
@@ -86,16 +84,6 @@ static unsigned int buildParameterList( va_list pArgs, vector<LuxToken>& aTokens
 
 }
 
-
-/**
-FreeImage error handler
-@param fif Format / Plugin responsible for the error
-@param message Error message
-*/
-static void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message) {
-	LOG(LUX_INFO, LUX_SYSTEM) << "FreeImage error, " <<
-		"format: " << (fif != FIF_UNKNOWN ? FreeImage_GetFormatFromFIF(fif) : "Unknown") << ": '" << message << "'";
-}
 
 static bool initialized = false;
 
@@ -513,8 +501,6 @@ extern "C" void luxInit()
 		Context::GetActive()->Init();
 	}
 
-	FreeImage_Initialise(true);
-	FreeImage_SetOutputMessage(FreeImageErrorHandler);
 	initialized = true;
 
 	// enable floating point exception deping ond FPDEBUG set in core/usfunc.h
