@@ -39,10 +39,19 @@ void QueryableRegistry::Insert(Queryable* object)
 
 void QueryableRegistry::Erase(Queryable* object)
 {
-	boost::mutex::scoped_lock lock(classWideMutex);
-	if (!queryableObjects.erase(object->GetName())) {
-		LOG(LUX_ERROR, LUX_BUG) << "Deregistration of non-existing Queryable object '" << object->GetName() << "' detected";
-	}
+    boost::mutex::scoped_lock lock(classWideMutex);
+
+    const std::string &name = object->GetName();
+
+    // Skip sampler deregistration if it was never registered (SPPM case)
+    if (name == "sampler" && queryableObjects.find(name) == queryableObjects.end())
+        return;
+
+    if (!queryableObjects.erase(name)) {
+        LOG(LUX_ERROR, LUX_BUG)
+            << "Deregistration of non-existing Queryable object '"
+            << name << "' detected";
+    }
 }
 
 const char * QueryableRegistry::GetContent()
