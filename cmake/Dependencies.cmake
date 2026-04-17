@@ -21,26 +21,11 @@
 
 #############################################################################
 #############################################################################
-##########################      Find LuxRays       ##########################
+##########################      Find Threads       ##########################
 #############################################################################
 #############################################################################
 
-IF(APPLE)
-	FIND_PATH(LUXRAYS_INCLUDE_DIRS NAMES luxrays/luxrays.h PATHS ${OSX_DEPENDENCY_ROOT}/include/LuxRays)
-	FIND_LIBRARY(LUXRAYS_LIBRARY libluxrays.a ${OSX_DEPENDENCY_ROOT}/lib/LuxRays)
-ELSE(APPLE)
-	FIND_PATH(LUXRAYS_INCLUDE_DIRS NAMES luxrays/luxrays.h PATHS ../luxrays/include ${LuxRays_HOME}/include )
-	FIND_LIBRARY(LUXRAYS_LIBRARY luxrays PATHS ../luxrays/lib ${LuxRays_HOME}/lib PATH_SUFFIXES "" release relwithdebinfo minsizerel dist )
-ENDIF(APPLE)
-
-IF (LUXRAYS_INCLUDE_DIRS AND LUXRAYS_LIBRARY)
-	MESSAGE(STATUS "LuxRays include directory: " ${LUXRAYS_INCLUDE_DIRS})
-	MESSAGE(STATUS "LuxRays library directory: " ${LUXRAYS_LIBRARY})
-	INCLUDE_DIRECTORIES(SYSTEM ${LUXRAYS_INCLUDE_DIRS})
-ELSE (LUXRAYS_INCLUDE_DIRS AND LUXRAYS_LIBRARY)
-	MESSAGE(FATAL_ERROR "LuxRays not found.")
-ENDIF (LUXRAYS_INCLUDE_DIRS AND LUXRAYS_LIBRARY)
-
+find_package(Threads REQUIRED)
 
 #############################################################################
 #############################################################################
@@ -122,19 +107,16 @@ find_package(OpenImageIO CONFIG REQUIRED)
 
 #############################################################################
 #############################################################################
-########################### PNG   LIBRARIES SETUP ###########################
+########################### IMAGE LIBRARIES SETUP ###########################
 #############################################################################
 #############################################################################
 
-IF(NOT APPLE)
-	FIND_PACKAGE(PNG)
-	IF(PNG_INCLUDE_DIRS)
-		MESSAGE(STATUS "PNG include directory: " ${PNG_INCLUDE_DIRS})
-		INCLUDE_DIRECTORIES(BEFORE SYSTEM ${PNG_INCLUDE_DIRS})
-	ELSE(PNG_INCLUDE_DIRS)
-		MESSAGE(STATUS "Warning : could not find PNG headers - building without png support")
-	ENDIF(PNG_INCLUDE_DIRS)
-ENDIF(NOT APPLE)
+find_package(TIFF REQUIRED)
+include_directories(BEFORE SYSTEM ${TIFF_INCLUDE_DIR})
+find_package(JPEG REQUIRED)
+include_directories(BEFORE SYSTEM ${JPEG_INCLUDE_DIR})
+find_package(PNG REQUIRED)
+include_directories(BEFORE SYSTEM ${PNG_INCLUDE_DIR})
 
 #############################################################################
 #############################################################################
@@ -159,15 +141,9 @@ endif()
 
 #############################################################################
 #############################################################################
-############################ THREADING LIBRARIES ############################
+###########################       TIFF FIX       ###########################
 #############################################################################
 #############################################################################
-
-find_package(Threads REQUIRED)
 
 add_library(CMath::CMath INTERFACE IMPORTED GLOBAL)
 target_link_libraries(CMath::CMath INTERFACE m)
-
-find_package(TIFF REQUIRED)
-
-ADD_DEFINITIONS("-DLUXRAYS_DISABLE_OPENCL")
