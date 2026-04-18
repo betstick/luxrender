@@ -193,9 +193,6 @@ void HitPoints::SetHitPoints(scheduling::Range *range)
 
 	float invPixelPdf = dynamic_cast<HaltonEyeSampler*>(hitpoints->eyeSampler)->GetInvPixelPdf();
 
-	// Hit point counter for sample count adjustment.
-	unsigned int hitPointCount = 0;
-
 	for(unsigned i = range->begin();
 			i != range->end();
 			i = range->next()) {
@@ -220,14 +217,11 @@ void HitPoints::SetHitPoints(scheduling::Range *range)
 		// sample.contribBuffer->AddSampleCount(-1.f);
 		// eyeSampler->AddSample(sample);
 
-		++hitPointCount;
-        
-        // Remove eyeSampler->AddSample() here. Instead, contributions accumulate in the vector.
 	}
 	
 	// Moved outside the loop. Single lock to flush all contributions.
     // Adjust sample count for all hit points at once.
-    sample.contribBuffer->AddSampleCount(static_cast<float>(hitPointCount));
+    sample.contribBuffer->AddSampleCount(1.f);
     eyeSampler->AddSample(sample);
 }
 
