@@ -28,7 +28,7 @@
 #include <sstream>
 #include <string>
 
-#define BOOST_ENABLE_ASSERT_HANDLER
+//#define BOOST_ENABLE_ASSERT_HANDLER
 #define BOOST_ENABLE_ASSERTS
 //#define BOOST_DISABLE_ASSERTS
 #include <boost/assert.hpp>
