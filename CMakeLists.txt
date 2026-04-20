@@ -331,8 +331,11 @@ ExternalProject_Add(
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LUXRAYS_INC_DIR}" "${INC_DIR}"
 )
 
-set(LCC_DST ${CMAKE_CURRENT_SOURCE_DIR}/bin/compile_commands.json)
-set(LCC_SRC ${CMAKE_CURRENT_SOURCE_DIR}/bin/pfx/lux/src/lux-build/compile_commands.json)
+
+set(LUX_PFX ${CMAKE_CURRENT_SOURCE_DIR}/bin/pfx/lux)
+set(LUX_BUILD ${LUX_PFX}/src/lux-build)
+set(OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set(LCC_DST ${OUT_DIR}/compile_commands.json)
 
 ExternalProject_Add(
 	lux
@@ -342,5 +345,8 @@ ExternalProject_Add(
 	PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/bin/pfx/lux
 	INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/build
 	INSTALL_COMMAND
-		COMMAND ${CMAKE_COMMAND} -E copy "${LCC_SRC}" "${LCC_DST}"
+		COMMAND ${CMAKE_COMMAND} -E copy "${LUX_BUILD}/compile_commands.json" "${LCC_DST}"
+		COMMAND ${CMAKE_COMMAND} -E copy "${LUX_BUILD}/luxrender" "${OUT_DIR}/luxrender"
+		COMMAND ${CMAKE_COMMAND} -E copy "${LUX_BUILD}/liblux.so" "${OUT_DIR}/liblux.so"
+		COMMAND ${CMAKE_COMMAND} -E copy "${LUX_BUILD}/luxconsole" "${OUT_DIR}/luxconsole"
 )
