@@ -252,6 +252,8 @@ ExternalProject_Add(
 
 ExternalProject_Add(
 	cpython
+	DEPENDS
+		openssl
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ext/cpython
 	PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/bin/pfx/cpython
 	INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/build
@@ -329,16 +331,16 @@ ExternalProject_Add(
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LUXRAYS_INC_DIR}" "${INC_DIR}"
 )
 
-#set(LCC_DST ${CMAKE_CURRENT_SOURCE_DIR}/bin/compile_commands.json)
-#set(LCC_SRC ${CMAKE_CURRENT_SOURCE_DIR}/bin/pfx/lux/src/lux-build/compile_commands.json)
-#
-#ExternalProject_Add(
-#	lux
-#	DEPENDS
-#		luxrays boost cpython openssl OpenImageIO Imath OpenColorIO
-#	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/lux
-#	PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/bin/pfx/lux
-#	INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/build
-#	INSTALL_COMMAND
-#		COMMAND ${CMAKE_COMMAND} -E copy "${LCC_SRC}" "${LCC_DST}"
-#)
+set(LCC_DST ${CMAKE_CURRENT_SOURCE_DIR}/bin/compile_commands.json)
+set(LCC_SRC ${CMAKE_CURRENT_SOURCE_DIR}/bin/pfx/lux/src/lux-build/compile_commands.json)
+
+ExternalProject_Add(
+	lux
+	DEPENDS
+		luxrays boost cpython openssl OpenImageIO Imath OpenColorIO
+	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/lux
+	PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/bin/pfx/lux
+	INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/build
+	INSTALL_COMMAND
+		COMMAND ${CMAKE_COMMAND} -E copy "${LCC_SRC}" "${LCC_DST}"
+)
